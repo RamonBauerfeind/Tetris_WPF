@@ -1,165 +1,109 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Tetris
 {
-    //Klasse für Spielfeld
-    public class Board
-    {
-        private int Rows;
-        private int Cols;
-        private int Score;
-        private int LinesFilled;
-        private Tetramino currTetramino;
-        private Label[,] BlockControls;
-        static private Brush NoBrush = Brushes.Transparent;
-        static private Brush SilverBrush = Brushes.Gray;
-
-        //Konstruktor
-        public Board(Grid TetrisGrid)
-        {
-            Rows = TetrisGrid.RowDefinitions.Count;
-            Cols = TetrisGrid.ColumnDefinitions.Count;
-            Score = 0;
-            LinesFilled = 0;
-
-            BlockControls = new Label[Cols, Rows];
-
-            for(int i = 0; i < Cols; i++)
-            {
-                for (int j = 0; j < Rows; j++)
-                {
-                    BlockControls[i, j] = new Label();
-                    BlockControls[i, j].Background = NoBrush;
-                    BlockControls[i, j].BorderBrush = SilverBrush;
-                    BlockControls[i, j].BorderThickness = new Thickness(1, 1, 1, 1);
-                    Grid.SetRow(BlockControls[i, j], j);
-                    Grid.SetColumn(BlockControls[i, j], i);
-                    TetrisGrid.Children.Add(BlockControls[i, j]);
-                }
-            }
-        }
-    }
-
-    public class Tetramino
-    {
-        private Point currPosition;
-        private Point[] currShape;
-        private Brush currColor;
-        private bool rotate;
-
-        //Konstruktor
-        public Tetramino() 
-        {
-            currPosition = new Point(0, 0);
-            currColor = Brushes.Transparent;
-            currShape = setRandomShape();
-        }
-
-        public Brush getCurrColor()
-        {
-            return currColor;
-        }
-
-        public Point getCurrPosition()
-        {
-            return currPosition;
-        }
-
-        public Point[] getCurrShape()
-        {
-            return currShape;
-        }
-
-        public void movLeft()
-        {
-            currPosition.X -= 1;
-        }
-
-        public void movRight()
-        {
-            currPosition.X += 1;
-        }
-
-        public void movDown()
-        {
-            currPosition.Y += 1;
-        }
-
-        public void movRotate()
-        {
-            //Drehen der Form durch Koordinatentausch mittels Hilfsvariable
-            if(rotate)
-            {
-                for(int i = 0; i < currShape.Length; i++)
-                {
-                    double x = currShape[i].X;
-                    currShape[i].X = currShape[i].Y * -1;
-                    currShape[i].Y = x;
-                }
-            }
-        }
-
-        private Point[] setRandomShape()
-        {
-            // legt Rotation, Farbe und Form der 7 möglichen Steine fest
-            Random rand = new Random();
-            switch(rand.Next() % 7)
-            {
-                case 0: //I
-                    rotate = true;
-                    currColor = Brushes.Cyan;
-                    return new Point[] { new Point(0, 0), new Point(-1, 0), new Point(1, 0), new Point(2, 0) };
-                case 1: //J
-                    rotate = true;
-                    currColor = Brushes.Blue;
-                    return new Point[] { new Point(1, -1), new Point(-1, 0), new Point(0, 0), new Point(1, 0) };
-                case 2: //L
-                    rotate = true;
-                    currColor = Brushes.Orange;
-                    return new Point[] { new Point(0, 0), new Point(-1, 0), new Point(1, 0), new Point(1, -1) };
-                case 3: //O
-                    rotate = false;
-                    currColor = Brushes.Yellow;
-                    return new Point[] { new Point(0, 0), new Point(0, 1), new Point(1, 0), new Point(1, 1) };
-                case 4: //S
-                    rotate = true;
-                    currColor = Brushes.Green;
-                    return new Point[] { new Point(0, 0), new Point(-1, 0), new Point(0, -1), new Point(1, 0) };
-                case 5: //T
-                    rotate = true;
-                    currColor = Brushes.Purple;
-                    return new Point[] { new Point(0, 0), new Point(-1, 0), new Point(0, -1), new Point(1, 1) };
-                case 6: //Z
-                    rotate = true;
-                    currColor = Brushes.Red;
-                    return new Point[] { new Point(0, 0), new Point(-1, 0), new Point(0, 1), new Point(1, 1) };
-                default:
-                    return null;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Interaktionslogik für MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+        DispatcherTimer Timer;
+        Board myBoard;
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        //Timer anlegen
+        void MainWindow_Initialized(object sender, EventArgs e)
+        {
+            Timer = new DispatcherTimer();
+            Timer.Tick += new EventHandler(GameTick);
+            Timer.Interval = new TimeSpan(0, 0, 0, 0, 400);
+            CreateGrid();
+        }
+
+        //Spielfeld erzeugen
+        private void CreateGrid()
+        {
+            MainGrid.Children.Clear(); // Grid leeren
+            myBoard = new Board(MainGrid);
+            myBoard.currTetraminoErase();
+        }
+        //Spiel starten
+        private void GameStart()
+        {
+            MainGrid.Children.Clear(); // Grid leeren
+            myBoard = new Board(MainGrid);
+            Timer.Start();
+        }
+
+        private void GameTick(object sender, EventArgs e)
+        {
+            Score.Content = myBoard.getScore().ToString("0000000000"); //Score darstellen
+            Lines.Content = myBoard.getLines().ToString("0000000000"); //Lines darstellen
+            myBoard.CurrTetraminoMoveDown(); //Stein fallen lassen
+        }
+
+        //Spiel Pause
+        private void GamePause()
+        {
+            if (Timer.IsEnabled) Timer.Stop();
+            else Timer.Start();
+        }
+
+        // Spiel Ende
+        private void GameEnd()
+        {
+            CreateGrid();
+            Timer.Stop();
+        }
+
+        //Tastenbelegung
+        private void HandleKeyDown(object sender, KeyEventArgs e)
+        {
+            switch(e.Key)
+            {
+                case Key.Left:
+                    if (Timer.IsEnabled) myBoard.CurrTetraminoMoveLeft();
+                    break;
+                case Key.Right:
+                    if (Timer.IsEnabled) myBoard.CurrTetraminoMoveReight();
+                    break;
+                case Key.Down:
+                    if (Timer.IsEnabled) myBoard.CurrTetraminoMoveDown();
+                    break;
+                case Key.Up:
+                    if (Timer.IsEnabled) myBoard.CurrTetraminoMoveRotate();
+                    break;
+                case Key.F2:
+                    GameStart();
+                    break;
+                case Key.F3:
+                    GamePause();
+                    break;
+                case Key.F4:
+                    GameEnd();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void pause_Click(object sender, RoutedEventArgs e)
+        {
+            GamePause();
+        }
+
+        private void start_Click(object sender, RoutedEventArgs e)
+        {
+            GameStart();
+        }
+
+        private void end_Click(object sender, RoutedEventArgs e)
+        {
+            GameEnd();
         }
     }
 }

@@ -5,8 +5,57 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tetris"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="MainWindow" Height="870" Width="825"
+        KeyDown="HandleKeyDown"
+        Initialized="MainWindow_Initialized" Background="DimGray">
+    <DockPanel LastChildFill="True">
+        <StackPanel DockPanel.Dock="Right" Width="200">
+            <Label Content="Tetris" Height="56" FontSize="40" FontWeight="Bold" FontStyle="Italic" Foreground="blue"/>
+            <Label Content="Score:" Height="56" FontSize="28" FontWeight="Bold" FontStyle="Italic" Foreground="red"/>
+            <Label Content="Label" Height="56" Name="Score" FontSize="28" FontWeight="Bold" />
+            <Label Content="Lines:" Height="56" FontSize="28" FontWeight="Bold" FontStyle="Italic" Foreground="red"/>
+            <Label Content="Label" Height="56" Name="Lines" FontSize="28" FontWeight="Bold" />
+            <Button x:Name="start" Content="Start Game (F2)" Height="55" Margin="10,50,15,0" FontWeight="Bold" FontSize="20" Click="start_Click" BorderBrush="Blue" BorderThickness="3"/>
+            <Button x:Name="pause" Content="Pause (F3)" Height="55" Margin="10,25,15,0" FontWeight="Bold" FontSize="20" Click="pause_Click" BorderBrush="Blue" BorderThickness="3"/>
+            <Button x:Name="end" Content="End Game (F4)" Height="55" Margin="10,25,15,0" FontWeight="Bold" FontSize="20" Click="end_Click" BorderBrush="Blue" BorderThickness="3"/>
+        </StackPanel>
+        <Grid Name="MainGrid" Height="800" Width="480">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+        </Grid>
+    </DockPanel>
 </Window>
